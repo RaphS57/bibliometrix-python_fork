@@ -40,10 +40,23 @@ def get_data(input, database, df, reset_callback=None):
                     f"The dataset contains {df.get().shape[0]} rows and {df.get().shape[1]} columns."
                 )
             else:
-                # Process single file (original logic)
+                # Process single file.
                 type = file[0]["name"]
-                json = biblio_json(file[0]["datapath"], source, type, author)
-                df.set(pd.read_json(StringIO(json)))
+
+                #Preferred path: the source-agnostic ETL pipeline. It returns a
+                #standardized, strongly-typed DataFrame (convert2df) that the
+                #analytical functions can consume regardless of the source.
+                try:
+                    standardized = convert2df(
+                        file[0]["datapath"], source, filename=type
+                    )
+                    df.set(standardized)
+                except Exception:
+                    #Fallback to the original logic for any source / extension
+                    #not yet covered by the ETL pipeline (e.g. .bib files).
+                    json = biblio_json(file[0]["datapath"], source, type, author)
+                    df.set(pd.read_json(StringIO(json)))
+
                 # Reset all analysis results when new dataset is loaded
                 if reset_callback:
                     reset_callback()
