@@ -11,6 +11,7 @@ from .networkplot import *
 from .parsers import *
 from .plotlydownload import *
 from .savereport import *
+from .standardizer import *
 from .tabletag import *
 from .termextraction import *
 from .thematicmap import *
